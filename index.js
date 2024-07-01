@@ -16,7 +16,7 @@ app.get("/api/hello", async (req, res) => {
 			res.status(400).send({ message: "visitor_name query param is required" });
 			return;
 		}
-		console.log(req.headers["x-forwarded-for"],"forwarded");
+		console.log(req.headers["x-forwarded-for"], "forwarded");
 
 		if (ip.startsWith("::ffff:")) {
 			ip = ip.split("::ffff:")[1];
@@ -26,11 +26,23 @@ app.get("/api/hello", async (req, res) => {
 		const response = await axios.get(
 			`https://ipgeolocation.abstractapi.com/v1/?api_key=67cc41c2e55b46b0a7b8936cf2cfe824&ip_address=${ip}`
 		);
+
+		if (!response.data.latitude || !response.data.longitude) {
+			res.status(401).send("Error encountered");
+			return;
+		}
 		console.log(response.data);
 
-		res.status(200).send("Dont play");
+		const response2 = await axios.get(
+			`https://api.openweathermap.org/data/2.5/forecast/daily?lat=${response.data.latitude}&lon=${response.data.longitude}&cnt=1&appid=398131002719031e79344fcbf0739400`
+		);
+
+		console.log(response2);
+
+		res.status(200).send("successful");
 	} catch (error) {
 		console.log(error);
+		res.status(400).send("Dont play");
 	}
 });
 app.listen(PORT, () => {
