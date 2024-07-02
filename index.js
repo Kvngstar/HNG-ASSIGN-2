@@ -33,6 +33,9 @@ app.get("/api/hello", async (req, res) => {
 		const response = await axios.get(
 			`https://api.ip2location.io/?key=${process.env.API_KEY_IPGEOLOCATION}&ip=${ip}`
 		);
+		console.log(response, "before parse response1");
+		response = JSON.parse(response);
+		console.log(response, "response1");
 		// enusre latitude and longitude is available
 		if (!response.latitude || !response.longitude) {
 			res.status(401).send({
