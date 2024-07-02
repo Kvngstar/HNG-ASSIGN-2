@@ -42,7 +42,7 @@ app.get("/api/hello", async (req, res) => {
 		res.status(200).send("successful");
 	} catch (error) {
 		console.log(error);
-		res.status(400).send("Dont play");
+		res.status(400).send("An error occured");
 	}
 });
 app.listen(PORT, () => {
