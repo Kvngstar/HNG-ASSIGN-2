@@ -33,7 +33,6 @@ app.get("/api/hello", async (req, res) => {
 		const response = await axios.get(
 			`https://api.ip2location.io/?key=${process.env.API_KEY_IPGEOLOCATION}&ip=${ip}`
 		);
-		
 
 		// enusre latitude and longitude is available
 		if (!response.data.latitude || !response.data.longitude) {
@@ -55,7 +54,7 @@ app.get("/api/hello", async (req, res) => {
 
 		res.status(200).send({
 			client_ip: ip,
-			location: response.data.country_name,
+			location: `${response.data.region_name}  ${response.data.country_name}`,
 			greeting: `Hello, ${req.query.visitor_name}!, the temperature is ${response2.data.temp} degree Celcius in ${response.data.region_name}, wind speeed of ${response2.data.wind_speed} and humidity ${response2.data.humidity}`,
 		});
 	} catch (error) {
