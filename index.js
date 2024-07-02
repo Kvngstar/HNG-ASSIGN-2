@@ -28,22 +28,22 @@ app.get("/api/hello", async (req, res) => {
 		}
 
 		// get location, longitude nnd latitude using ipgeolocation api
+
+		// https://api.ip2location.io/?key=7FC1EAF000B80517A32CDEEFC9A1AECD&ip=
 		const response = await axios.get(
-			`https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.API_KEY_IPGEOLOCATION}&ip_address=${ip}`
+			`https://api.ip2location.io/?key=${process.env.API_KEY_IPGEOLOCATION}&ip=${ip}`
 		);
 		// enusre latitude and longitude is available
-		if (!response.data.latitude || !response.data.longitude) {
-			res
-				.status(401)
-				.send({
-					message:
-						"Error: Unable to get Longitude and Lantitude of your location",
-				});
+		if (!response.latitude || !response.longitude) {
+			res.status(401).send({
+				message:
+					"Error: Unable to get Longitude and Lantitude of your location",
+			});
 			return;
 		}
 		//  using ninja weather api, dynamically get visitor's location weather
 		const response2 = await axios.get(
-			`https://api.api-ninjas.com/v1/weather?lat=${response.data.latitude}&lon=${response.data.longitude}`,
+			`https://api.api-ninjas.com/v1/weather?lat=${response.latitude}&lon=${response.longitude}`,
 			{
 				headers: {
 					"X-Api-Key": process.env.API_KEY_NINJAS,
@@ -54,7 +54,7 @@ app.get("/api/hello", async (req, res) => {
 		res.status(200).send({
 			client_ip: ip,
 			location: response.data.country,
-			greeting: `Hello, ${req.query.visitor_name}!, the temperature is ${response2.data.temp} degree Celcius in ${response.data.country}, wind speeed of ${response2.data.wind_speed} and humidity ${response2.data.humidity}`,
+			greeting: `Hello, ${req.query.visitor_name}!, the temperature is ${response2.data.temp} degree Celcius in ${response.region_name}, wind speeed of ${response2.data.wind_speed} and humidity ${response2.data.humidity}`,
 		});
 	} catch (error) {
 		console.log(error);
