@@ -34,7 +34,12 @@ app.get("/api/hello", async (req, res) => {
 		console.log(response.data);
 
 		const response2 = await axios.get(
-			`http://api.openweathermap.org/data/2.5/forecast/daily?lat=${response.data.latitude}&lon=${response.data.longitude}&cnt=1&appid=398131002719031e79344fcbf0739400`
+			`https://api.api-ninjas.com/v1/weather?lat=${response.data.latitude}&lon=${response.data.longitude}`,
+			{
+				headers: {
+					"X-Api-Key": "AAdf3vlNNN6376TLcGFagA==aPF5ox4a6wzL1SrL",
+				},
+			}
 		);
 
 		console.log(response2);
