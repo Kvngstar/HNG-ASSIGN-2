@@ -1,8 +1,12 @@
 const express = require("express");
 const ipAddress = require("request-ip");
 const axios = require("axios");
-
+const dotenv = require("dotenv");
 const app = express();
+
+// for configuring environment variables
+dotenv.config({ path: ".env" });
+
 const PORT = process.env.PORT || 3002;
 
 app.use(express.urlencoded({ extended: true }));
@@ -10,44 +14,51 @@ app.use(express.json());
 
 app.get("/api/hello", async (req, res) => {
 	try {
+		// get the IP address using the getClientIp package
 		let ip = ipAddress.getClientIp(req);
-		console.log(ip);
+
+		// verify if a the required qquery is provided
 		if (!req.query.visitor_name) {
 			res.status(400).send({ message: "visitor_name query param is required" });
 			return;
 		}
-		console.log(req.headers["x-forwarded-for"], "forwarded");
-
+		// check if its IPV6 or IPV4 and modify to server
 		if (ip.startsWith("::ffff:")) {
 			ip = ip.split("::ffff:")[1];
 		}
-		console.log(ip);
-		// get location
-		const response = await axios.get(
-			`https://ipgeolocation.abstractapi.com/v1/?api_key=67cc41c2e55b46b0a7b8936cf2cfe824&ip_address=${ip}`
-		);
 
+		// get location, longitude nnd latitude using ipgeolocation api
+		const response = await axios.get(
+			`https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.API_KEY_IPGEOLOCATION}&ip_address=${ip}`
+		);
+		// enusre latitude and longitude is available
 		if (!response.data.latitude || !response.data.longitude) {
-			res.status(401).send("Error encountered");
+			res
+				.status(401)
+				.send({
+					message:
+						"Error: Unable to get Longitude and Lantitude of your location",
+				});
 			return;
 		}
-		console.log(response.data);
-
+		//  using ninja weather api, dynamically get visitor's location weather
 		const response2 = await axios.get(
 			`https://api.api-ninjas.com/v1/weather?lat=${response.data.latitude}&lon=${response.data.longitude}`,
 			{
 				headers: {
-					"X-Api-Key": "AAdf3vlNNN6376TLcGFagA==aPF5ox4a6wzL1SrL",
+					"X-Api-Key": process.env.API_KEY_NINJAS,
 				},
 			}
 		);
 
-		console.log(response2);
-
-		res.status(200).send("successful");
+		res.status(200).send({
+			client_ip: ip,
+			location: response.data.country,
+			greeting: `Hello, ${req.query.visitor_name}!, the temperature is ${response2.data.temp} degree Celcius in ${response.data.country}, wind speeed of ${response2.data.wind_speed} and humidity ${response2.data.humidity}`,
+		});
 	} catch (error) {
 		console.log(error);
-		res.status(400).send("An error occured");
+		res.status(400).send({ message: "An unknown error occured" });
 	}
 });
 app.listen(PORT, () => {
