@@ -34,7 +34,7 @@ app.get("/api/hello", async (req, res) => {
 		console.log(response.data);
 
 		const response2 = await axios.get(
-			`https://api.openweathermap.org/data/2.5/forecast/daily?lat=${response.data.latitude}&lon=${response.data.longitude}&cnt=1&appid=398131002719031e79344fcbf0739400`
+			`http://api.openweathermap.org/data/2.5/forecast/daily?lat=${response.data.latitude}&lon=${response.data.longitude}&cnt=1&appid=398131002719031e79344fcbf0739400`
 		);
 
 		console.log(response2);
